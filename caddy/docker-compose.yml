@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - webnet
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-web
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./site-mksvk:/var/www/mksvk:ro
+      - ./site-reddy:/var/www/reddy:ro
+    expose:
+      - "80"
+    networks:
+      - webnet
+
+  tasksbackend:
+    image: smart-tasks-backend
+    container_name: smart-tasks-api
+    env_file:
+      - ./.env
+    ports:
+      - "4000:4000"        # host:container
+    networks:
+      - webnet
+
+  tasksfrontend:
+    image: smart-tasks-frontend 
+    container_name: smart-tasks-ui
+    depends_on:
+      - tasksbackend
+    ports:
+      - "8080:80"        # host:container (Vite preview on 4173 inside container)
+    networks:
+      - webnet
+
+
+networks:
+  webnet:
+
+volumes:
+  caddy_data:
+  caddy_config:
