@@ -1,0 +1,112 @@
+##############################################
+# SMART TASKS + REMINDERS — API TEST COMMANDS
+# Base URL: http://localhost:4000
+##############################################
+
+### 1. Health Check
+curl -X GET http://localhost:4000/
+
+
+#################################################
+# 2. Create a Task
+#################################################
+curl -X POST http://localhost:4000/api/tasks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Pay electricity bill",
+    "description": "Before the due date",
+    "dueDate": "2025-11-25T10:00:00.000Z",
+    "reminderAt": "2025-11-24T09:00:00.000Z",
+    "priority": "high",
+    "tags": ["home", "finance"],
+    "status": "pending"
+  }'
+
+
+#################################################
+# 3. Get All Tasks
+#################################################
+curl -X GET http://localhost:4000/api/tasks
+
+
+#################################################
+# 4. Filtered Tasks
+#################################################
+
+# By status
+curl -X GET "http://localhost:4000/api/tasks?status=pending"
+curl -X GET "http://localhost:4000/api/tasks?status=done"
+
+# By priority
+curl -X GET "http://localhost:4000/api/tasks?priority=high"
+curl -X GET "http://localhost:4000/api/tasks?priority=medium"
+curl -X GET "http://localhost:4000/api/tasks?priority=low"
+
+# By tag
+curl -X GET "http://localhost:4000/api/tasks?tag=finance"
+curl -X GET "http://localhost:4000/api/tasks?tag=home"
+
+# Combined filters example
+curl -X GET "http://localhost:4000/api/tasks?status=pending&priority=high&tag=finance"
+
+
+#################################################
+# 5. Quick Filters
+#################################################
+
+# Today's tasks
+curl -X GET http://localhost:4000/api/tasks/filters/today
+
+# Overdue tasks
+curl -X GET http://localhost:4000/api/tasks/filters/overdue
+
+# Upcoming tasks (next 7 days)
+curl -X GET http://localhost:4000/api/tasks/filters/upcoming
+
+
+#################################################
+# 6. Get a Single Task by ID
+#################################################
+
+# Replace TASK_ID with your MongoDB _id
+curl -X GET http://localhost:4000/api/tasks/TASK_ID
+
+
+#################################################
+# 7. Update a Task
+#################################################
+
+curl -X PUT http://localhost:4000/api/tasks/TASK_ID \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Updated title here",
+    "priority": "medium",
+    "status": "pending",
+    "reminderAt": "2025-11-24T11:00:00.000Z"
+  }'
+
+
+#################################################
+# 8. Delete a Task
+#################################################
+
+curl -X DELETE http://localhost:4000/api/tasks/TASK_ID
+
+
+#################################################
+# 9. Reminder Worker Debug (optional)
+#################################################
+
+# Only needed if you want to manually trigger a check
+# NOTE: Your server already runs the worker automatically.
+node -e "require('./src/reminder/worker').startReminderWorker()"
+
+
+
+###################### Docker commands ######################
+docker build -t smart-tasks-backend ./smart-tasks-api 
+
+docker build \                                                                                                                                
+  -t smart-tasks-frontend \
+  --build-arg VITE_API_BASE_URL="https://smart-task-api.mksvk.com" \
+  ./smart-tasks-ui
