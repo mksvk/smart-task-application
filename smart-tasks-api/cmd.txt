@@ -106,7 +106,4 @@ node -e "require('./src/reminder/worker').startReminderWorker()"
 ###################### Docker commands ######################
 docker build -t smart-tasks-backend ./smart-tasks-api 
 
-docker build \                                                                                                                                
-  -t smart-tasks-frontend \
-  --build-arg VITE_API_BASE_URL="https://smart-task-api.mksvk.com" \
-  ./smart-tasks-ui
+docker build -t smart-tasks-frontend   --build-arg VITE_API_BASE_URL="https://smart-task-api.mksvk.com"  ./smart-tasks-ui
