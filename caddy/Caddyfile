@@ -47,3 +47,16 @@ smart-task-ui.mksvk.com {
         header_up X-Forwarded-Proto {http.request.scheme}
     }
 }
+
+ai.mksvk.com {
+    log {
+        output stdout
+        format console
+    }
+
+    reverse_proxy nginx-web:80 {
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {http.request.scheme}
+    }
+}
